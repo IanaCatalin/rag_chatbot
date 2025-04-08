@@ -4,7 +4,7 @@ import openai
 import numpy as np
 import streamlit as st
 
-from pdf_extraction import extract_text_from_pdf
+from src.data_extraction import extract_text_from_pdf
 from text_chunking import chunk_text
 from embedding import get_embedding
 from vector_index import build_index

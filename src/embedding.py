@@ -1,8 +1,8 @@
-from typing import List, Optional
 from openai import OpenAI
+from typing import List, Optional
 
 
-def get_embedding(text: str, client: Optional[OpenAI] = None, model: str = "text-embedding-3-large") -> List[float]:
+def get_embedding(text: str, client: Optional[OpenAI] = None, model: str = "text-embedding-3-small") -> List[float]:
     """
     Generate an embedding vector for the provided text using OpenAI's embedding model.
 
