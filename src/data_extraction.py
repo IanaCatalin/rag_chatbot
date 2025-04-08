@@ -38,12 +38,13 @@ def extract_text_from_pdf(pdf_path: Union[str, List[str]]) -> str:
     return all_text
 
 
-def extract_from_json(json_path: str) -> Dict[str, str]:
+def extract_from_json(json_path: str, include_urls: bool = True) -> Dict[str, str]:
     """
     Extract text from a JSON file containing URLs and text.
 
     Args:
         json_path: Path to the JSON file
+        include_urls: Whether to include the URLs at the top of each text content (default: True)
 
     Returns:
         A dictionary mapping URLs to their corresponding text content
@@ -56,8 +57,11 @@ def extract_from_json(json_path: str) -> Dict[str, str]:
                 if isinstance(item, dict):
                     url = item.get('url', f'item_{i}')
                     text = item.get('text', '')
-                    # Format the content with URL followed by text with separator
-                    result[url] = f"{url}\n\n{text}\n\n\n\n"
+                    # Format the content with or without URL based on the parameter
+                    if include_urls:
+                        result[url] = f"{url}\n\n{text}\n\n\n\n"
+                    else:
+                        result[url] = f"{text}\n\n\n\n"
     except Exception as e:
         print(f"Error processing JSON file: {str(e)}")
 

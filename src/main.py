@@ -1,10 +1,9 @@
-
 import os
-from embedding import get_embedding
+from embedding import get_embeddings_concurrent
 from text_chunking import chunk_text
 from vector_index import build_index
-from data_extraction import extract_text_from_pdf, extract_from_json
 from query_handler import query_rag, generate_answer
+from data_extraction import extract_text_from_pdf, extract_from_json
 
 from dotenv import load_dotenv
 
@@ -23,9 +22,24 @@ if __name__ == "__main__":
     print(f"Extracted {len(pdf_text)} characters of text from PDFs")
 
     print("Extracting text from JSON files...")
-    json_data = extract_from_json("data/content.json")
-    json_text = "\n\n".join(json_data.values())
-    print(f"Extracted {len(json_text)} characters of text from JSON")
+    json_data = extract_from_json("json_data/eon_data.json", include_urls=False)
+
+
+    # Filter out noise from the JSON text based on text_1.txt content
+    filtered_json_data = {}
+    
+    # Get the lines from text_1.txt to use as a filter
+    with open("filter_text/text_1.txt", "r", encoding="utf-8") as f:
+        filter_lines = set(line.strip() for line in f if line.strip())
+    
+    # Filter out the noise lines from the JSON data
+    for key, value in json_data.items():
+        lines = value.split("\n")
+        filtered_lines = [line for line in lines if line.strip() and line.strip() not in filter_lines]
+        filtered_json_data[key] = "\n".join(filtered_lines)
+    
+    json_text = "\n\n".join(filtered_json_data.values())
+    print(f"Extracted {len(json_text)} characters of text from JSON (after filtering noise)")
 
     # Combine text from both sources
     combined_text = pdf_text + "\n\n" + json_text
@@ -38,19 +52,32 @@ if __name__ == "__main__":
 
     # 3. Generate embeddings for each chunk
     print("Generating embeddings for each chunk...")
-    embeddings = [get_embedding(chunk, client=client) for chunk in chunks]
+    import asyncio
+    
+    # Use the concurrent method from embedding.py
+    async def get_embeddings():
+        return await get_embeddings_concurrent(
+            texts=chunks,
+            client=client,
+            batch_size=200,
+            show_progress=True
+        )
+    
+    # Run the async function to get embeddings
+    embeddings = asyncio.run(get_embeddings())
+    
     print(f"Generated {len(embeddings)} embeddings")
 
     # 4. Build the vector index
     print("Building vector index...")
-    index = build_index(embeddings)
+    index = build_index(embeddings, metric='l2')
     print("Vector index built successfully")
 
     # 5. Handle a sample query
-    query = "Ce este E.ON Solar Casa Verde?"
+    query = "E inseamna E.ON Solar Casa Verde"
     print(f"Processing query: '{query}'")
     print("Retrieving relevant chunks (limited to 10)...")
-    relevant_chunks = query_rag(query, index, chunks, k=5, client=client)
+    relevant_chunks = query_rag(query, index, chunks, k=7, client=client)
     print(f"Found {len(relevant_chunks)} relevant chunks")
 
     print("\n" + "="*80)
