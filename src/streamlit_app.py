@@ -12,6 +12,7 @@ from query_handler import query_rag, generate_answer
 
 # Set OpenAI API key from environment variable
 
+
 @st.cache_resource
 def load_index_and_chunks(pdf_pattern="data/*.pdf"):
     st.info("Processing PDF(s) and building index... (This may take a minute)")
@@ -19,7 +20,8 @@ def load_index_and_chunks(pdf_pattern="data/*.pdf"):
     # Expand the wildcard pattern to find PDF files
     pdf_files = glob.glob(pdf_pattern)
     if not pdf_files:
-        raise FileNotFoundError(f"No PDF files found matching the pattern: {pdf_pattern}")
+        raise FileNotFoundError(
+            f"No PDF files found matching the pattern: {pdf_pattern}")
 
     # Extract text from all PDF files
     all_text = ""
@@ -36,6 +38,7 @@ def load_index_and_chunks(pdf_pattern="data/*.pdf"):
     index = build_index(embeddings)
 
     return index, chunks
+
 
 # Load (or cache) the index and text chunks.
 index, chunks = load_index_and_chunks()
