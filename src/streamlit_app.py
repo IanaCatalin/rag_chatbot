@@ -1,8 +1,8 @@
-import streamlit as st
-import glob
-import numpy as np
-import openai
 import os
+import glob
+import openai
+import numpy as np
+import streamlit as st
 
 from pdf_extraction import extract_text_from_pdf
 from text_chunking import chunk_text

@@ -1,9 +1,14 @@
-from openai import OpenAI
-
-client = OpenAI()
+import os
 import numpy as np
-from embedding import get_embedding
+from openai import OpenAI
+from dotenv import load_dotenv
 from vector_index import build_index
+from embedding import get_embedding
+
+load_dotenv(override=True)
+
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
 
 def query_rag(query, index, chunks, k=3):
     query_embedding = np.array(get_embedding(query)).astype("float32").reshape(1, -1)
