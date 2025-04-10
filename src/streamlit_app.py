@@ -4,12 +4,11 @@ import asyncio
 import streamlit as st
 from openai import OpenAI
 from dotenv import load_dotenv
-
-from data_extraction import extract_text_from_pdf, extract_from_json
+from vector_index import build_index
 from text_chunking import chunk_text
 from embedding import get_embeddings_concurrent
-from vector_index import build_index
 from query_handler import query_rag, generate_answer
+from data_extraction import extract_text_from_pdf, extract_from_json
 
 # Load environment variables
 load_dotenv(override=True)
